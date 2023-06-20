@@ -17,21 +17,23 @@ nervous = False
 x = 0
 y = 0
 ms = 0.0
+furnid = 0
 
 
 def coords(coord):
-    global x, y, nervous
+    global x, y, nervous, furnid
     if nervous:
-        _, x, y, _ = coord.packet.read("iiii")
-        ext.send_to_client('{in:Whisper}{i:-1}{s:"Coords set to: x: ' +str(x)+ ' y: '+str(y)+ '"}{i:0}{i:34}{i:0}{i:-1}')
+        furnid, x, y, _ = coord.packet.read("iiii")
+        ext.send_to_client('{in:Whisper}{i:-1}{s:"Coords set to: x: ' + str(x) + ' y: '+ str(y) + '"}{i:0}{i:34}{i:0}{i:-1}')
 
 def handitem(item):
-    global x, y, nervous, ms
+    global x, y, nervous, ms, furnid
     if nervous:
         user, itemid = item.packet.read('ii')
         if itemid == 3:
             time.sleep(ms)
             ext.send_to_server('{out:MoveAvatar}{i:' + str(x) + '}{i:' + str(y) + '}')
+            ext.send_to_server('{out:ClickFurni}{i:' + str(furnid) + '}{i:0}')
 
 def message(message):
     global nervous, ms
@@ -46,7 +48,7 @@ def message(message):
         nervous = False
         ext.send_to_client('{in:Whisper}{i:-1}{s:"Nervous Bot is Off"}{i:0}{i:34}{i:0}{i:-1}')
 
-    elif nervous and text.lower().startswith(':nms'):
+    elif nervous and text.lower().startswith(':nms '):
         message.is_blocked = True
         words = text.split()
         try:
